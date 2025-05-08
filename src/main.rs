@@ -87,6 +87,8 @@ fn test_binary_search_tree(){
     let root_node = BstNode::get_root(&max_node);
     println!("root node {:?}", root_node.borrow().key);
 
+    
+
     //successor test
     let query_keys = vec![
         2, // min_node, should return its parent Some(3)
@@ -98,6 +100,8 @@ fn test_binary_search_tree(){
         9, 7, // other keys
         22 // non-existent key
     ];
+
+    let target_node = add_node(Some(root_node), 30).unwrap();
 
     for &key in query_keys.iter() {
         if let Some(node) = rootlink.borrow().tree_search(&key) {

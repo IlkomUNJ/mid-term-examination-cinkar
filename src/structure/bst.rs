@@ -1,6 +1,8 @@
 use std::cell::{Ref, RefCell};
 use std::rc::{Rc, Weak};
 
+use super::tree::Node;
+
 pub type BstNodeLink = Rc<RefCell<BstNode>>;
 pub type WeakBstNodeLink = Weak<RefCell<BstNode>>;
 
@@ -62,6 +64,30 @@ impl BstNode {
         self.right = Some(new_node);
     }
 
+    fn add_node(&self, target_node: &BstNodeLink, value: i32) -> bool {
+        match target_node {
+            // Jika tree kosong, kembalikan node baru
+            None => Some(BstNodeLink::new(self.key)).is_some(),
+            Some(mut node) => {
+                // Jika key sudah ada, kembalikan node yang ada
+                if target_node.key == self.key {
+                    return Some(target_node).is_some();
+                }
+    
+                // Jika key lebih kecil, masuk ke subtree kiri
+                if target_node.key > self.key {
+                    target_node.left = insert(target_node.left, self.key);
+                }
+                // Jika key lebih besar, masuk ke subtree kanan
+                else {
+                    target_node.right = insert(target_node.right, self.key);
+                }
+    
+                Some(target_node).is_some()
+            }
+        }
+    }
+    
     /**change node u, with node v via parent swap
      * v must be singular node
      * this function only update parent, copy v value while original link on v is untouched which could be problematic
@@ -168,6 +194,19 @@ impl BstNode {
             }
         }
         self.get_bst_nodelink_copy()
+    }
+
+    fn median(&self)  -> BstNodeLink {
+        if let Some(n) = node {
+            // Traversal ke subtree kiri
+            print_inorder(n.left.as_ref());
+    
+            // Kunjungi node
+            print!("{} ", n.data);
+    
+            // Traversal ke subtree kanan
+            print_inorder(n.right.as_ref());
+        };
     }
 
     /**
@@ -295,6 +334,30 @@ impl BstNode {
         return Some(y_node.clone().unwrap())
     }
 
+    fn tree_predecessor(_: node:: &BstNodeLink) ->  Option<BstNodeLink> {
+        let mut curr = target_node.clone();
+        let mut pred: Option<Rc<RefCell<Node>>> = None;
+    
+        while let Some(node_rc) = curr {
+            let node = node_rc.borrow();
+            if node > node.data {
+                pred = Some(node_rc.clone());
+                curr = node.right.clone();
+            } else if node < node.data {
+                curr = node.left.clone();
+            } else {
+                // If left subtree exists, get rightmost of left subtree
+                if let Some(left_node) = node.left.clone() {
+                    return Some(Self::is_left_child_exist(left_node));
+                } else {
+                    return pred;
+                }
+            }
+        }
+    
+        pred
+    }
+
     /**
      * private function return true if node doesn't has parent nor children nor key
      */
@@ -312,6 +375,8 @@ impl BstNode {
             }
         }
     }
+
+
 
     //helper function to compare both nodelink value (only)
     fn is_node_match_option(node1: Option<BstNodeLink>, node2: Option<BstNodeLink>) -> bool {
